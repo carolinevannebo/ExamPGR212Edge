@@ -1,9 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include "Network.h"
-#include <Light.h>
 
-void Network::connectToWifi() {
+void Network::initWifi() {
     Serial.println("Attempting to connect to network: " + String(ssid));
 
     while (WiFi.status() != WL_CONNECTED) {
@@ -12,7 +11,7 @@ void Network::connectToWifi() {
         delay(5000);
 
         // Yellow light on
-        changeColor(255, 255, 0);
+        light.setYellow();
     }
         
     Serial.print("\nConnected to Wifi!");
@@ -84,7 +83,7 @@ void Network::connect() {
     Serial.println("Checking wifi...");
 
     if(WiFi.status() != WL_CONNECTED) {
-        connectToWifi();
+        initWifi();
 
         while (!syncronizeClock()) {
             NTPClient timeClient(ntpUDP, ntpServer, gmtOffset_sec, daylightOffset_sec);
@@ -99,11 +98,11 @@ void Network::connect() {
         initMQTT();
 
         // Blue light on
-        changeColor(0, 0, 255);
+        light.setBlue();
     }
 }
 
-void Network::initWifi() {
+void Network::init() {
     // Connect to WiFi
     WiFi.begin(ssid, pass);
     WiFi.mode(WIFI_STA);

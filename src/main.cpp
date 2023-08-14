@@ -13,8 +13,10 @@
 #include <cmath> // Used to calculate abnormal data values
 #include <Light.h> // Used for light
 
+Network network;
+
 // @todo - test OTA library
-#include "OTA.h"
+//#include "OTA.h"
 
 String payload;
 DynamicJsonDocument doc(1024);
@@ -23,10 +25,23 @@ DynamicJsonDocument doc(1024);
 unsigned long lastRequestSent = 0;
 
 void setup() {
-
   Serial.begin(115200);
-  while (!Serial);
+  Wire.begin(3, 4);
+  delay(1500);
 
+  while (!Serial) delay(10);
+
+  // Initialize light
+  Light::getInstance();
+  // Initialize sensors
+  delay(1000);
+  // Initialize network
+  network.init();
+  // Initialize NTP client
+  // Initialize cookies
+  // Initialize OTA
+
+  /*
   // initialize Serial1 for communication with the WiFi module
   Serial1.begin(115200);
   WiFi.init(&Serial1);
@@ -52,11 +67,12 @@ void setup() {
 
   // you're connected now, so print out the status:
   printWifiStatus();
+  */
 }
 
 void loop() {
   // check for WiFi OTA updates
-  ArduinoOTA.poll();
+  //ArduinoOTA.poll();
 
   // add your normal loop code below ...
 }

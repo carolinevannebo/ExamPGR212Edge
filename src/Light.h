@@ -10,15 +10,26 @@
 #define NUMPIXELS 1 // There is only one pixel on the board
 
 class Light {
-  Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BRG);
-  
-  void initializeStrip();
-  void changeColor(int r, int g, int b);
+  private:
+    Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BRG);
+    void changeColor(int r, int g, int b);
+    
+    Light() {
+      init();
+    };
 
-  Light() {
-      initializeStrip();
-  };
+    void init();
 
-  ~Light() {};
+  public:
+    static Light& getInstance() {
+      static Light instance;
+      return instance;
+    }
+
+    void setRed();
+    void setOrange();
+    void setYellow();
+    void setGreen();
+    void setBlue();
 };
 #endif

@@ -15,8 +15,10 @@
 
 #include <MQTT.h> // Used for MQTT -- tror denne kan fjernes pga linja under
 #include <PubSubClient.h> // Used for real-time communication
+#include "Light.h"
 
 class Network {
+    private:
         WiFiUDP ntpUDP;
         HTTPClient http;
         PubSubClient mqttClient;
@@ -26,16 +28,23 @@ class Network {
         NTPClient timeClient(WiFiUDP ntpUDP, const char* ntpServer, long gmtOffset_sec, int daylightOffset_sec);
         //NTPClient timeClient(ntpUDP, ntpServer, gmtOffset_sec, daylightOffset_sec);
 
+        Light& light = Light::getInstance();
+
         void initWifi();
-        void connect();
-        void connectToWifi();
         bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt
         void initMQTT();
 
+    public:
+        void init();
+        void connect();
+
         Network() {
-            initWifi();
+            init();
         };
 
-        ~Network() {};
+        static Network& getInstance() { // In case I want to use singleton, but I think not for now
+            static Network instance;
+            return instance;
+        };
 };
 #endif
