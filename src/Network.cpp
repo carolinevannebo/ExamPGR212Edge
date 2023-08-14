@@ -164,6 +164,17 @@ void Network::requestURL() {
     httpClient.end();
 }
 
+void Network::loopMQTT() {
+    // Handle reconnection to MQTT broker
+    if (!mqttClient.connected()) {
+        Serial.println("Disconnected from MQTT broker");
+        initMQTT();
+    }
+
+    mqttClient.loop();
+    delay(10);
+}
+
 void Network::sendToBroker(float x, float y, float z) {
     String topicX = mqttTopic + "X";
     String topicY = mqttTopic + "Y";

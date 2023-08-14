@@ -26,7 +26,6 @@ class Network {
         PubSubClient mqttClient;
         WiFiClient networkClient;
         WiFiClientSecure secureNetworkClient, secureNetworkClientHiveMQ;
-        NTPClient& timeClient = *(new NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec));
 
         String payload;
         DynamicJsonDocument& doc = *(new DynamicJsonDocument(1024));
@@ -42,9 +41,11 @@ class Network {
     public:
         void init();
         void connect();
+        void loopMQTT();
         void sendToBroker(float x, float y, float z);
         void sendToServer(float x, float y, float z);
-        NTPClient getTimeClient() { return timeClient; };
+
+        NTPClient& timeClient = *(new NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec));
 
         Network() {
             init();

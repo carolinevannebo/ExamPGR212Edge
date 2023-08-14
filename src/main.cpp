@@ -69,7 +69,25 @@ void loop() {
   //ArduinoOTA.poll();
 
   // add your normal loop code below ...
-  network.getTimeClient().update();
+  network.timeClient.update();
+
+  if (network.timeClient.getMinutes() == 0) {
+    // Set the ESP32's internal clock every hour
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {
+      Serial.println("Failed to obtain time");
+      return;
+    }
+  }
+
+  network.loopMQTT();
+  sensor.read();
+  network.sendToBroker(sensor.getX(), sensor.getY(), sensor.getZ());
+  
+  // @todo determine danger, if true:
+  //network.sendToServer(sensor.getX(), sensor.getY(), sensor.getZ());
+
+  delay(1000);
 }
 
 void printWifiStatus() {
