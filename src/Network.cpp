@@ -95,9 +95,9 @@ void Network::connect() {
         
         initMQTT();
 
-        NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec).begin();
-        NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec).setTimeOffset(gmtOffsetSec);
-        NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec).setUpdateInterval(ntpUpdateInterval);
+        timeClient.begin();
+        timeClient.setTimeOffset(gmtOffsetSec);
+        timeClient.setUpdateInterval(ntpUpdateInterval);
 
         // Blue light on
         light.setBlue();
@@ -115,4 +115,94 @@ void Network::init() {
     //secureNetworkClient.setCACert(rootCA);
     //secureNetworkClientHiveMQ.setCACert(rootCaHiveMQ);
     connect();
+}
+
+void Network::initJson(String id, float x, float y, float z) {
+    payload = "";
+    doc.clear();
+
+    doc["sensorId"] = id;
+    doc["sensorX"] = x;
+    doc["sensorY"] = y;
+    doc["sensorZ"] = z;
+
+    serializeJson(doc, payload);
+
+    Serial.println("\nJSON payload: " + payload);
+}
+
+void Network::requestURL() {
+    Serial.println("\nSending request to: " + String(hostDomain));
+
+    httpClient.setTimeout(httpTimeout);
+
+    if (!httpClient.begin(secureNetworkClient, String(hostDomain))) {
+        Serial.println("\nFailed to connect to: " + String(hostDomain));
+        return;
+    }
+
+    httpClient.addHeader("Content-Type", "application/json");
+    int httpResponseCode = httpClient.POST(payload);
+
+    if (httpResponseCode > 0) {
+        Serial.println("\nPOST request sent successfully");
+        Serial.print("HTTP response code: ");
+        Serial.println(httpResponseCode);
+
+        // Get the response from the server
+        String response = httpClient.getString();
+        Serial.print("Response from server: ");
+        Serial.println(response);
+
+        light.setGreen();
+    } else {
+        Serial.println("\nError on sending POST request, error code: ");
+        Serial.println(httpResponseCode);
+    }
+
+    Serial.println("Closing connection");
+    httpClient.end();
+}
+
+void Network::sendToBroker(float x, float y, float z) {
+    String topicX = mqttTopic + "X";
+    String topicY = mqttTopic + "Y";
+    String topicZ = mqttTopic + "Z";
+
+    if (WiFi.status() == WL_CONNECTED) {
+        if (mqttClient.connected()) {
+            Serial.println("\nSending data to broker...");
+            
+            try {
+                mqttClient.publish(topicX.c_str(), String(x).c_str());
+                mqttClient.publish(topicY.c_str(), String(y).c_str());
+                mqttClient.publish(topicZ.c_str(), String(z).c_str());
+
+                Serial.println("\nPublishing successful!");
+                light.setGreen();
+
+            } catch (const std::exception& e) {
+                Serial.println("\nPublishing failed!");
+                Serial.println(e.what());
+            }
+        } else {
+            Serial.println("\nMQTT client not connected, trying to reconnect...");
+            initMQTT();
+        }
+    } else {
+        Serial.println("\nWiFi not connected, trying to reconnect...");
+        connect();
+    }
+}
+
+void Network::sendToServer(float x, float y, float z) {
+    if (WiFi.status() == WL_CONNECTED) {
+        Serial.println("\nSending data to server...");
+        initJson(sensorId, x, y, z);
+        requestURL();
+        
+    } else {
+        Serial.println("\nWiFi not connected, trying to reconnect...");
+        connect();
+    }
 }

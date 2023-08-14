@@ -15,30 +15,36 @@
 // ... iclude certificate files
 
 #include <MQTT.h> // Used for MQTT -- tror denne kan fjernes pga linja under
-#include <PubSubClient.h> // Used for real-time communication
+#include <ArduinoJson.h> // Used for parsing JSON
+#include <PubSubClient.h> // Used for real-time communication MQTT
 #include <Light.h>
 
 class Network {
     private:
         WiFiUDP ntpUDP;
-        HTTPClient http;
+        HTTPClient httpClient;
         PubSubClient mqttClient;
         WiFiClient networkClient;
         WiFiClientSecure secureNetworkClient, secureNetworkClientHiveMQ;
+        NTPClient& timeClient = *(new NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec));
 
-        //NTPClient timeClient(WiFiUDP ntpUDP, const char* ntpServer, long gmtOffsetSec, int daylightOffsetSec);
-        //NTPClient& ntpClient = timeClient(ntpUDP, ntpServer, gmtOffset_sec, daylightOffset_sec);
+        String payload;
+        DynamicJsonDocument& doc = *(new DynamicJsonDocument(1024));
 
         Light& light = Light::getInstance();
 
         void initWifi();
         bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt
         void initMQTT();
+        void initJson(String id, float x, float y, float z);
+        void requestURL();
 
     public:
         void init();
         void connect();
-
+        void sendToBroker(float x, float y, float z);
+        void sendToServer(float x, float y, float z);
+        NTPClient getTimeClient() { return timeClient; };
 
         Network() {
             init();

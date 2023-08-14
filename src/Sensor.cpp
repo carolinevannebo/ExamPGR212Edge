@@ -25,6 +25,15 @@ void Sensor::init() {
   }
 }
 
+void Sensor::print() {
+  /* Display the results (acceleration is measured in m/s^2) */
+    Serial.print("\nNormalized Data: ");
+    Serial.print("\nX: "); Serial.print(x);
+    Serial.print("  \tY: "); Serial.print(y);
+    Serial.print("  \tZ: "); Serial.print(z);
+    Serial.print(" m/s^2 ");
+}
+
 void Sensor::read() {
   sensors_event_t event;
 
@@ -33,18 +42,17 @@ void Sensor::read() {
     y = event.acceleration.y;
     z = event.acceleration.z;
 
-    /* Display the results (acceleration is measured in m/s^2) */
-    Serial.print("\nNormalized Data: ");
-    Serial.print("\nX: "); Serial.print(x);
-    Serial.print("  \tY: "); Serial.print(y);
-    Serial.print("  \tZ: "); Serial.print(z);
-    Serial.print(" m/s^2 ");
-
+    print();
     // Green light on
     light.setGreen();
+
   } else {
     Serial.print("\nNo new data.");
     // Orange light on
     light.setOrange();
   }
 }
+
+float Sensor::getX() { return x; }
+float Sensor::getY() { return y; }
+float Sensor::getZ() { return z; }

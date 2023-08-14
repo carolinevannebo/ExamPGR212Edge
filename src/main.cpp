@@ -6,7 +6,6 @@
 #include <Network.h> // Used for sending data to server
 #include <Sensor.h> // Used for sensors @todo: magnet to sensor to detect door open/close
 
-#include <ArduinoJson.h> // Used for parsing JSON
 #include <cmath> // Used to calculate abnormal data values
 #include <Light.h> // Used for light
 
@@ -14,9 +13,6 @@ Network network;
 Sensor sensor;
 // @todo - test OTA library
 //#include "OTA.h"
-
-String payload;
-DynamicJsonDocument doc(1024);
 
 // Used for request interval
 unsigned long lastRequestSent = 0;
@@ -73,6 +69,7 @@ void loop() {
   //ArduinoOTA.poll();
 
   // add your normal loop code below ...
+  network.getTimeClient().update();
 }
 
 void printWifiStatus() {
