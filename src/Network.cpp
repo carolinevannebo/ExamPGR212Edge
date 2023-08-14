@@ -1,5 +1,3 @@
-#include <Arduino.h>
-#include <WiFi.h>
 #include "Network.h"
 
 void Network::initWifi() {
@@ -86,8 +84,8 @@ void Network::connect() {
         initWifi();
 
         while (!syncronizeClock()) {
-            NTPClient timeClient(ntpUDP, ntpServer, gmtOffset_sec, daylightOffset_sec);
-
+            Serial.print(".");
+            delay(500);
             if (syncronizeClock()) break;
             else {
                 Serial.println("\nFailed to synchronize clock, trying again in 3 seconds...");
@@ -97,8 +95,14 @@ void Network::connect() {
         
         initMQTT();
 
+        NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec).begin();
+        NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec).setTimeOffset(gmtOffsetSec);
+        NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec).setUpdateInterval(ntpUpdateInterval);
+
         // Blue light on
         light.setBlue();
+
+        delay(1000);
     }
 }
 
@@ -107,6 +111,7 @@ void Network::init() {
     WiFi.begin(ssid, pass);
     WiFi.mode(WIFI_STA);
 
+    // @todo
     //secureNetworkClient.setCACert(rootCA);
     //secureNetworkClientHiveMQ.setCACert(rootCaHiveMQ);
     connect();

@@ -4,6 +4,7 @@
 #include "Credentials.h"
 
 // Used for sending data to server
+#include <WiFi.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
 #include "Credentials.h"
@@ -15,7 +16,7 @@
 
 #include <MQTT.h> // Used for MQTT -- tror denne kan fjernes pga linja under
 #include <PubSubClient.h> // Used for real-time communication
-#include "Light.h"
+#include <Light.h>
 
 class Network {
     private:
@@ -25,8 +26,8 @@ class Network {
         WiFiClient networkClient;
         WiFiClientSecure secureNetworkClient, secureNetworkClientHiveMQ;
 
-        NTPClient timeClient(WiFiUDP ntpUDP, const char* ntpServer, long gmtOffset_sec, int daylightOffset_sec);
-        //NTPClient timeClient(ntpUDP, ntpServer, gmtOffset_sec, daylightOffset_sec);
+        //NTPClient timeClient(WiFiUDP ntpUDP, const char* ntpServer, long gmtOffsetSec, int daylightOffsetSec);
+        //NTPClient& ntpClient = timeClient(ntpUDP, ntpServer, gmtOffset_sec, daylightOffset_sec);
 
         Light& light = Light::getInstance();
 
@@ -37,6 +38,7 @@ class Network {
     public:
         void init();
         void connect();
+
 
         Network() {
             init();

@@ -3,18 +3,15 @@
 
 #include "Credentials.h" // Credentials for edge service
 
-// Used for sending data to server
-#include <Network.h>
-
-// Used for sensors @todo: magnet to sensor to detect door open/close
-#include "Sensors.h"
+#include <Network.h> // Used for sending data to server
+#include <Sensor.h> // Used for sensors @todo: magnet to sensor to detect door open/close
 
 #include <ArduinoJson.h> // Used for parsing JSON
 #include <cmath> // Used to calculate abnormal data values
 #include <Light.h> // Used for light
 
 Network network;
-
+Sensor sensor;
 // @todo - test OTA library
 //#include "OTA.h"
 
@@ -34,6 +31,7 @@ void setup() {
   // Initialize light
   Light::getInstance();
   // Initialize sensors
+  sensor.init();
   delay(1000);
   // Initialize network
   network.init();

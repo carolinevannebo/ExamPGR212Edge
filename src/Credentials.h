@@ -13,8 +13,9 @@ String mqttTopic = "elevatormonitoring/";
 
 // NTP
 const char* ntpServer = "pool.ntp.org";
-const long gmtOffset_sec = 3600;
-const int daylightOffset_sec = 0;
+const long gmtOffsetSec = 3600;
+const int daylightOffsetSec = 0;
+const int ntpUpdateInterval = 60000; // 1 minute in milliseconds
 
 // Internet address to send POST to
 const char * hostDomain = ""; // Render endpoint for API
