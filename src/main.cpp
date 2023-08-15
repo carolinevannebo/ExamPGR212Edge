@@ -1,13 +1,11 @@
 #include <Arduino.h>
 #include <WiFi.h>
 
-#include "Credentials.h" // Credentials for edge service
-
-#include <Network.h> // Used for sending data to server
-#include <Sensor.h> // Used for sensors @todo: magnet to sensor to detect door open/close
+#include "Network.h" // Used for sending data to server
+#include "Sensor.h" // Used for sensors @todo: magnet to sensor to detect door open/close
+#include "Light.h" // Used for light
 
 #include <cmath> // Used to calculate abnormal data values
-#include <Light.h> // Used for light
 
 Network network;
 Sensor sensor;
@@ -21,7 +19,7 @@ void setup() {
 
   while (!Serial) delay(10);
 
-  Light::getInstance(); // Initialize light
+  Light& light = Light::getInstance(); // Initialize light
   sensor.init(); // Initialize sensors
   delay(1000);
   
@@ -93,7 +91,7 @@ void loop() {
   delay(1000);
 }
 
-void printWifiStatus() {
+/*void printWifiStatus() {
   // print the SSID of the network you're attached to:
   Serial.print("SSID: ");
   Serial.println(WiFi.SSID());
@@ -108,4 +106,4 @@ void printWifiStatus() {
   Serial.print("signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
-}
+}*/

@@ -1,23 +1,22 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include "Credentials.h"
-
 // Used for sending data to server
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
 #include "Credentials.h"
+//#include "CredentialsManager.h"
 
 // Used for validating certificates
 #include <FS.h>
 #include <NTPClient.h>
 // ... iclude certificate files
 
-#include <MQTT.h> // Used for MQTT -- tror denne kan fjernes pga linja under
+//#include <MQTT.h> // Used for MQTT -- tror denne kan fjernes pga linja under
 #include <ArduinoJson.h> // Used for parsing JSON
 #include <PubSubClient.h> // Used for real-time communication MQTT
-#include <Light.h>
+#include "Light.h"
 
 class Network {
     private:
@@ -31,6 +30,8 @@ class Network {
         DynamicJsonDocument& doc = *(new DynamicJsonDocument(1024));
 
         Light& light = Light::getInstance();
+        //Credentials& credentials = CredentialsManager::getInstance();
+        Credentials credentials;
 
         void initWifi();
         void initMQTT();
@@ -67,10 +68,10 @@ class Network {
             float z
         );
 
-        NTPClient& timeClient = *(new NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec));
-
         Network() {
             init();
         };
+
+        NTPClient& timeClient = *(new NTPClient(ntpUDP, credentials.ntpServer, credentials.gmtOffsetSec, credentials.daylightOffsetSec));
 };
 #endif

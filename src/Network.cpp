@@ -1,11 +1,11 @@
 #include "Network.h"
 
 void Network::initWifi() {
-    Serial.println("Attempting to connect to network: " + String(ssid));
+    Serial.println("Attempting to connect to network: " + String(credentials.ssid));
 
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
-        WiFi.begin(ssid, pass);
+        WiFi.begin(credentials.ssid, credentials.pass);
         delay(5000);
 
         // Yellow light on
@@ -45,23 +45,23 @@ bool Network::syncronizeClock() {
 void Network::initMQTT() {
     while (!mqttClient.connected()) {
         mqttClient.setClient(secureNetworkClientHiveMQ);
-        mqttClient.setServer(mqttServer, mqttPort);
+        mqttClient.setServer(credentials.mqttServer, credentials.mqttPort);
         Serial.println("MQTT client buffer size: " + String(mqttClient.getBufferSize()));
 
-        if (mqttClient.connect(sensorId, mqttUsername, mqttPassword)) {
+        if (mqttClient.connect(credentials.sensorId, credentials.mqttUsername, credentials.mqttPassword)) {
             Serial.print("\nConnected to MQTT broker, state: ");
             Serial.print(mqttClient.state());
 
-            mqttTopic = String(mqttUsername) + "/" + mqttTopic + String(sensorId) + "/";
+            credentials.mqttTopic = String(credentials.mqttUsername) + "/" + credentials.mqttTopic + String(credentials.sensorId) + "/";
 
             Serial.print("\nSubscribing to topic: ");
-            Serial.println(mqttTopic);
+            Serial.println(credentials.mqttTopic);
 
             Serial.print("\nSetting up Subscription to the topic: ");
-            Serial.print(mqttTopic);
+            Serial.print(credentials.mqttTopic);
 
             try {
-                mqttClient.subscribe(mqttTopic.c_str(), 0);
+                mqttClient.subscribe(credentials.mqttTopic.c_str(), 0);
                 Serial.println("\nSubscription successful!");
             } catch (const std::exception& e) {
                 Serial.println("\nSubscription failed!");
@@ -96,8 +96,8 @@ void Network::connect() {
         initMQTT();
 
         timeClient.begin();
-        timeClient.setTimeOffset(gmtOffsetSec);
-        timeClient.setUpdateInterval(ntpUpdateInterval);
+        timeClient.setTimeOffset(credentials.gmtOffsetSec);
+        timeClient.setUpdateInterval(credentials.ntpUpdateInterval);
 
         // Blue light on
         light.setBlue();
@@ -108,7 +108,7 @@ void Network::connect() {
 
 void Network::init() {
     // Connect to WiFi
-    WiFi.begin(ssid, pass);
+    WiFi.begin(credentials.ssid, credentials.pass);
     WiFi.mode(WIFI_STA);
 
     // @todo
@@ -139,12 +139,12 @@ void Network::initJson(
 }
 
 void Network::requestURL() {
-    Serial.println("\nSending request to: " + String(hostDomain));
+    Serial.println("\nSending request to: " + String(credentials.hostDomain));
 
-    httpClient.setTimeout(httpTimeout);
+    httpClient.setTimeout(credentials.httpTimeout);
 
-    if (!httpClient.begin(secureNetworkClient, String(hostDomain))) {
-        Serial.println("\nFailed to connect to: " + String(hostDomain));
+    if (!httpClient.begin(secureNetworkClient, String(credentials.hostDomain))) {
+        Serial.println("\nFailed to connect to: " + String(credentials.hostDomain));
         return;
     }
 
@@ -183,13 +183,13 @@ void Network::loopMQTT() {
 }
 
 void Network::sendToBroker(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
-    const char* topicTemp = String(mqttTopic + "Temperature").c_str();
-    const char* topicHum = String(mqttTopic + "Humidity").c_str();
-    const char* topicLight = String(mqttTopic + "LightIntensity").c_str();
+    const char* topicTemp = String(credentials.mqttTopic + "Temperature").c_str();
+    const char* topicHum = String(credentials.mqttTopic + "Humidity").c_str();
+    const char* topicLight = String(credentials.mqttTopic + "LightIntensity").c_str();
 
-    String topicX = mqttTopic + "X";
-    String topicY = mqttTopic + "Y";
-    String topicZ = mqttTopic + "Z";
+    String topicX = credentials.mqttTopic + "X";
+    String topicY = credentials.mqttTopic + "Y";
+    String topicZ = credentials.mqttTopic + "Z";
 
     if (WiFi.status() == WL_CONNECTED) {
         if (mqttClient.connected()) {
@@ -252,7 +252,7 @@ void Network::sendToBroker(float temperature, float humidity, float lightIntensi
 void Network::sendToServer(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("\nSending data to server...");
-        initJson(sensorId, temperature, humidity, lightIntensity, x, y, z);
+        initJson(credentials.sensorId, temperature, humidity, lightIntensity, x, y, z);
         requestURL();
         
     } else {

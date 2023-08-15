@@ -10,7 +10,7 @@
 #include <Adafruit_SHT31.h>
 #include <Adafruit_LTR329_LTR303.h>
 
-#include <Light.h>
+#include "Light.h"
 
 class Sensor {
     private:

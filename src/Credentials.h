@@ -1,30 +1,38 @@
 // This file contains the credentials for your edge service
+#ifndef CREDENTIALS_H
+#define CREDENTIALS_H
+#include <Arduino.h>
 
-// WiFi credentials
-const char ssid[] = ""; // Your network SSID (name)
-const char pass[] = ""; // Your network password
+class Credentials {
+    public:
+        Credentials() {};
 
-// Used for MQTT connection
-const char mqttUsername[] = "";
-const char mqttPassword[] = "";
-const char mqttServer[]   = "";
-const int mqttPort = 8883;
-String mqttTopic = "pig-binge-monitoring/";
+        // WiFi credentials
+        const char* ssid = "Freeloadere"; // Your network SSID (name)
+        const char* pass = "ZFQS7YPDYQQYV7"; // Your network password
 
-// NTP
-const char* ntpServer = "pool.ntp.org";
-const long gmtOffsetSec = 3600;
-const int daylightOffsetSec = 0;
-const int ntpUpdateInterval = 60000; // 1 minute in milliseconds
+        // Used for MQTT connection
+        String mqttTopic= "pig-binge-monitoring/";
+        const char* mqttUsername = "EdgeService";
+        const char* mqttPassword= "Kristiania1914";
+        const char* mqttServer = "099bf917add24ebfae77efd1236af9e5.s1.eu.hivemq.cloud";
+        const int mqttPort= 8883;
 
-// Internet address to send POST to
-const char * hostDomain = ""; // Render endpoint for API
-const int hostPort = 443;
+        // Internet address to send POST to
+        const char* hostDomain = ""; // Render endpoint for API
+        const int hostPort = 443;
 
-const int httpTimeout = 10000; // 10 seconds in milliseconds
+        // NTP
+        const char* ntpServer= "pool.ntp.org";
+        const long gmtOffsetSec = 3600;
+        const int daylightOffsetSec = 0;
+        const int ntpUpdateInterval = 60000; // 1 minute in milliseconds
 
-const char * sensorId = "ESP32-KRISTIANIA"; // Change to implement additional sensors
-const int ledBrightness = 60; // 0-255
+        const char * sensorId = "ESP32-NORTH"; // Change to implement additional sensors
+        const int httpTimeout = 10000; // 10 seconds in milliseconds
+        const int ledBrightness = 60; // 0-255
 
-unsigned long requestInterval = 300000; // 5 minutes in milliseconds
-unsigned long lastRequestSent = 0;
+        unsigned long requestInterval = 300000; // 5 minutes in milliseconds
+        unsigned long lastRequestSent = 0;
+};
+#endif

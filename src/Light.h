@@ -3,6 +3,7 @@
 
 #include <Adafruit_DotStar.h> // Used for light
 #include "Credentials.h"
+//#include "CredentialsManager.h"
 
 //Use these pin definitions for the ItsyBitsy M4
 #define DATAPIN 33
@@ -12,13 +13,15 @@
 class Light {
   private:
     Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BRG);
+    //Credentials& credentials = CredentialsManager::getInstance();
+    Credentials credentials;
+
+    void init();
     void changeColor(int r, int g, int b);
     
     Light() {
       init();
     };
-
-    void init();
 
   public:
     static Light& getInstance() {

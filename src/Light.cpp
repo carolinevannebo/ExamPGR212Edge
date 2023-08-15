@@ -6,7 +6,7 @@ void Light::init() {
     strip.setPixelColor(i, 0);
   }
   strip.begin(); // Initialize pins for output
-  strip.setBrightness(ledBrightness);
+  strip.setBrightness(credentials.ledBrightness);
   strip.show();  // Turn all LEDs off ASAP
 }
 
