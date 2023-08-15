@@ -33,27 +33,44 @@ class Network {
         Light& light = Light::getInstance();
 
         void initWifi();
-        bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt
         void initMQTT();
-        void initJson(String id, float x, float y, float z);
         void requestURL();
+        bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt
+        void initJson(
+            String id, 
+            float temperature, 
+            float humidity, 
+            float lightIntensity, 
+            float x, 
+            float y, 
+            float z
+        );
 
     public:
         void init();
         void connect();
         void loopMQTT();
-        void sendToBroker(float x, float y, float z);
-        void sendToServer(float x, float y, float z);
+        void sendToBroker(
+            float temperature, 
+            float humidity, 
+            float lightIntensity, 
+            float x, 
+            float y, 
+            float z
+        );
+        void sendToServer(
+            float temperature, 
+            float humidity, 
+            float lightIntensity, 
+            float x, 
+            float y, 
+            float z
+        );
 
         NTPClient& timeClient = *(new NTPClient(ntpUDP, ntpServer, gmtOffsetSec, daylightOffsetSec));
 
         Network() {
             init();
-        };
-
-        static Network& getInstance() { // In case I want to use singleton, but I think not for now
-            static Network instance;
-            return instance;
         };
 };
 #endif

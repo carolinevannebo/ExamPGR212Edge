@@ -1,17 +1,24 @@
 #include "Sensor.h"
 
-void Sensor::init() {
+float Sensor::getX() { return x; }
+float Sensor::getY() { return y; }
+float Sensor::getZ() { return z; }
+
+float Sensor::getTemperature() { return temperature; }
+float Sensor::getHumidity() { return humidity; }
+float Sensor::getLightIntensity() { return lightIntensity; }
+
+void Sensor::initLIS() {
   Serial.print("\nLIS3DH accelometer test: ");
 
   if (!lis.begin(0x18)) {
-    Serial.print("Could not start, check wiring! ");
+    Serial.print("Could not find LIS3DH, check wiring! ");
 
-    // Orange light on
     light.setOrange();
-
     while (1) yield();
+
   } else {
-    Serial.print("LIS3DH found!");
+    Serial.print("LIS3DH sensor found!");
 
     /* 2 << n is a bitshift operation that multiplies 2 by 2 raised to the power of n.
     The range setting is a 2-bit value, so the range setting can be 0, 1, 2, or 3.
@@ -19,22 +26,81 @@ void Sensor::init() {
     Serial.print("\nRange = "); 
     Serial.print(2 << lis.getRange());
     Serial.print("G");
-
-    // Green light on
-    light.setGreen();
   }
 }
 
-void Sensor::print() {
+void Sensor::initSHT() {
+  Serial.print("\nSHT31 temperature-humidity sensor test: ");
+
+  if (!sht.begin(0x44)) {
+    Serial.print("Could not find SHT31, check wiring! ");
+
+    light.setOrange();
+    while (1) yield();
+
+  } else {
+    Serial.print("SHT31 sensor found!");
+
+    Serial.print("\nHeater Enabled State: ");
+    if (sht.isHeaterEnabled())
+      Serial.println("ENABLED");
+    else
+      Serial.println("DISABLED");
+  }
+}
+
+void Sensor::initLTR() {
+  Serial.print("LTR329 light sensor test: ");
+
+  if (!ltr.begin()) { // 0x29 is already default I2C address
+    Serial.print("Could not find LTR329, check wiring! ");
+
+    light.setOrange();
+    while (1) yield();
+
+  } else {
+    Serial.print("LTR329 sensor found!");
+
+    Serial.print("\nLight gain: ");
+    Serial.println(ltr.getGain());
+    Serial.print("Light integration time: ");
+    Serial.println(ltr.getIntegrationTime());
+  }
+}
+
+void Sensor::init() {
+  initLIS();
+  initSHT();
+  initLTR();
+  light.setGreen();
+}
+
+void Sensor::printLIS() {
   /* Display the results (acceleration is measured in m/s^2) */
-    Serial.print("\nNormalized Data: ");
+    Serial.print("\nNormalized acceleration data: ");
     Serial.print("\nX: "); Serial.print(x);
     Serial.print("  \tY: "); Serial.print(y);
     Serial.print("  \tZ: "); Serial.print(z);
     Serial.print(" m/s^2 ");
 }
 
-void Sensor::read() {
+void Sensor::printSHT() {
+  Serial.print("\nTemperature: ");
+  Serial.print(temperature);
+  Serial.print(" deg C");
+
+  Serial.print("\tHumidity: ");
+  Serial.print(humidity);
+  Serial.print(" %");
+}
+
+void Sensor::printLTR() {
+  Serial.print("\nLight intensity: ");
+  Serial.print(lightIntensity);
+  Serial.print(" lux");
+}
+
+void Sensor::readLIS() {
   sensors_event_t event;
 
   if(lis.getEvent(&event)) {
@@ -42,17 +108,53 @@ void Sensor::read() {
     y = event.acceleration.y;
     z = event.acceleration.z;
 
-    print();
-    // Green light on
+    printLIS();
     light.setGreen();
 
   } else {
     Serial.print("\nNo new data.");
-    // Orange light on
     light.setOrange();
   }
 }
 
-float Sensor::getX() { return x; }
-float Sensor::getY() { return y; }
-float Sensor::getZ() { return z; }
+void Sensor::readSHT() {
+  temperature = sht.readTemperature();
+  humidity = sht.readHumidity();
+
+  if(isnan(temperature) || isnan(humidity)) {
+    Serial.println("Failed to read from SHT31 sensor.");
+
+    light.setOrange();
+    return;
+  }
+
+  printSHT();
+  light.setGreen();
+}
+
+void Sensor::readLTR() {
+  uint16_t broadband, ir;
+
+  if (ltr.newDataAvailable()) {
+    bool valid = ltr.readBothChannels(broadband, ir);
+
+    if (valid) {
+      lightIntensity = broadband;
+
+      printLTR();
+      light.setGreen();
+    
+    } else {
+      Serial.print("\nSomething went wrong reading light sensor channel.");
+      light.setOrange();
+    }
+  } else {
+    Serial.print("\nNo new data.");
+  }
+}
+
+void Sensor::read() {
+  readLIS();
+  readSHT();
+  readLTR();
+}

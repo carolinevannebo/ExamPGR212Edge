@@ -117,14 +117,21 @@ void Network::init() {
     connect();
 }
 
-void Network::initJson(String id, float x, float y, float z) {
+void Network::initJson(
+        String id, 
+        float temperature, float humidity, float lightIntensity, 
+        float x, float y, float z) {
+
     payload = "";
     doc.clear();
 
-    doc["sensorId"] = id;
-    doc["sensorX"] = x;
-    doc["sensorY"] = y;
-    doc["sensorZ"] = z;
+    doc["SensorId"] = id;
+    doc["Temperature"] = temperature;
+    doc["Humidity"] = humidity;
+    doc["LightIntensity"] = lightIntensity;
+    doc["X"] = x;
+    doc["Y"] = y;
+    doc["Z"] = z;
 
     serializeJson(doc, payload);
 
@@ -175,19 +182,55 @@ void Network::loopMQTT() {
     delay(10);
 }
 
-void Network::sendToBroker(float x, float y, float z) {
+void Network::sendToBroker(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
+    const char* topicTemp = String(mqttTopic + "Temperature").c_str();
+    const char* topicHum = String(mqttTopic + "Humidity").c_str();
+    const char* topicLight = String(mqttTopic + "LightIntensity").c_str();
+
     String topicX = mqttTopic + "X";
     String topicY = mqttTopic + "Y";
     String topicZ = mqttTopic + "Z";
 
     if (WiFi.status() == WL_CONNECTED) {
         if (mqttClient.connected()) {
+            char tempPayload[20];
+            char humPayload[20];
+            char lightPayload[20];
+
+            snprintf(tempPayload, sizeof(tempPayload), "%.2f *C", temperature);
+            snprintf(humPayload, sizeof(humPayload), "%.2f %%", humidity);
+            snprintf(lightPayload, sizeof(lightPayload), "%.2f lux", lightIntensity);
+    
+            unsigned int tempPayloadLength = strlen(tempPayload);
+            unsigned int humPayloadLength = strlen(humPayload);
+            unsigned int lightPayloadLength = strlen(lightPayload);
+
             Serial.println("\nSending data to broker...");
             
             try {
-                mqttClient.publish(topicX.c_str(), String(x).c_str());
-                mqttClient.publish(topicY.c_str(), String(y).c_str());
-                mqttClient.publish(topicZ.c_str(), String(z).c_str());
+                Serial.print("\nPublishing temperature: ");
+                bool publishTemp = mqttClient.publish(topicTemp, tempPayload, tempPayloadLength);
+                Serial.println(publishTemp ? "successful!" : "failed!");
+
+                Serial.print("\nPublishing humidity: ");
+                bool publishHum = mqttClient.publish(topicHum, humPayload, humPayloadLength);
+                Serial.println(publishHum ? "successful!" : "failed!");
+
+                Serial.print("\nPublishing light intensity: ");
+                bool publishLight = mqttClient.publish(topicLight, lightPayload, lightPayloadLength);
+                Serial.println(publishLight ? "successful!" : "failed!");
+
+                Serial.print("\nPublishing X: ");
+                bool publishX = mqttClient.publish(topicX.c_str(), String(x).c_str());
+                Serial.println(publishX ? "successful!" : "failed!");
+
+                Serial.print("\nPublishing Y: ");
+                bool publishY = mqttClient.publish(topicY.c_str(), String(y).c_str());
+                Serial.println(publishY ? "successful!" : "failed!");
+
+                Serial.print("\nPublishing Z: ");
+                bool publishZ = mqttClient.publish(topicZ.c_str(), String(z).c_str());
+                Serial.println(publishZ ? "successful!" : "failed!");
 
                 Serial.println("\nPublishing successful!");
                 light.setGreen();
@@ -206,10 +249,10 @@ void Network::sendToBroker(float x, float y, float z) {
     }
 }
 
-void Network::sendToServer(float x, float y, float z) {
+void Network::sendToServer(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("\nSending data to server...");
-        initJson(sensorId, x, y, z);
+        initJson(sensorId, temperature, humidity, lightIntensity, x, y, z);
         requestURL();
         
     } else {

@@ -9,7 +9,7 @@ const char mqttUsername[] = "";
 const char mqttPassword[] = "";
 const char mqttServer[]   = "";
 const int mqttPort = 8883;
-String mqttTopic = "elevatormonitoring/";
+String mqttTopic = "pig-binge-monitoring/";
 
 // NTP
 const char* ntpServer = "pool.ntp.org";
@@ -25,4 +25,6 @@ const int httpTimeout = 10000; // 10 seconds in milliseconds
 
 const char * sensorId = "ESP32-KRISTIANIA"; // Change to implement additional sensors
 const int ledBrightness = 60; // 0-255
+
 unsigned long requestInterval = 300000; // 5 minutes in milliseconds
+unsigned long lastRequestSent = 0;

@@ -14,9 +14,6 @@ Sensor sensor;
 // @todo - test OTA library
 //#include "OTA.h"
 
-// Used for request interval
-unsigned long lastRequestSent = 0;
-
 void setup() {
   Serial.begin(115200);
   Wire.begin(3, 4);
@@ -24,13 +21,11 @@ void setup() {
 
   while (!Serial) delay(10);
 
-  // Initialize light
-  Light::getInstance();
-  // Initialize sensors
-  sensor.init();
+  Light::getInstance(); // Initialize light
+  sensor.init(); // Initialize sensors
   delay(1000);
-  // Initialize network
-  network.init();
+  
+  network.init(); // Initialize network
   // Initialize NTP client
   // Initialize cookies
   // Initialize OTA
@@ -82,7 +77,15 @@ void loop() {
 
   network.loopMQTT();
   sensor.read();
-  network.sendToBroker(sensor.getX(), sensor.getY(), sensor.getZ());
+  
+  network.sendToBroker(
+    sensor.getTemperature(), 
+    sensor.getHumidity(), 
+    sensor.getLightIntensity(), 
+    sensor.getX(), 
+    sensor.getY(), 
+    sensor.getZ()
+  );
   
   // @todo determine danger, if true:
   //network.sendToServer(sensor.getX(), sensor.getY(), sensor.getZ());
