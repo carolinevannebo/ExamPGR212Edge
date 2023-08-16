@@ -6,7 +6,6 @@
 #include <HTTPClient.h>
 #include <WiFiClientSecure.h>
 #include "Credentials.h"
-//#include "CredentialsManager.h"
 
 // Used for validating certificates
 #include <FS.h>
@@ -29,14 +28,17 @@ class Network {
         String payload;
         DynamicJsonDocument& doc = *(new DynamicJsonDocument(1024));
 
-        Light& light = Light::getInstance();
-        //Credentials& credentials = CredentialsManager::getInstance();
         Credentials credentials;
+        Light& light = Light::getInstance();
 
+        //const char* cert = rootCert;
+        //const char* certMQ = rootCertHiveMQ;
+
+        void init();
         void initWifi();
         void initMQTT();
         void requestURL();
-        bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt
+        bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt pga sertifikat
         void initJson(
             String id, 
             float temperature, 
@@ -47,8 +49,16 @@ class Network {
             float z
         );
 
+        Network() {
+            init();
+        };
+
     public:
-        void init();
+        static Network& getInstance() {
+            static Network instance;
+            return instance;
+        }
+        
         void connect();
         void loopMQTT();
         void sendToBroker(
@@ -68,9 +78,6 @@ class Network {
             float z
         );
 
-        Network() {
-            init();
-        };
 
         NTPClient& timeClient = *(new NTPClient(ntpUDP, credentials.ntpServer, credentials.gmtOffsetSec, credentials.daylightOffsetSec));
 };

@@ -1,7 +1,6 @@
 #ifndef SENSOR_H
 #define SENSOR_H
 
-// Used for sensors @todo: magnet to sensor to detect door open/close
 #include <Wire.h>
 #include <SPI.h>
 #include <Adafruit_LIS3DH.h>
@@ -28,6 +27,7 @@ class Sensor {
 
         Light& light = Light::getInstance();
 
+        void init();
         void initLIS();
         void initSHT();
         void initLTR();
@@ -40,8 +40,16 @@ class Sensor {
         void printSHT();
         void printLTR();
 
+        Sensor(){
+            init();
+        };
+
     public:
-        void init();
+        static Sensor& getInstance() {
+            static Sensor instance;
+            return instance;
+        }
+        
         void read();
 
         float getX();
@@ -52,8 +60,5 @@ class Sensor {
         float getHumidity();
         float getLightIntensity();
 
-        Sensor(){
-            init();
-        };
 };
 #endif

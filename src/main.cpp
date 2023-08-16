@@ -1,29 +1,32 @@
 #include <Arduino.h>
-#include <WiFi.h>
 
-#include "Network.h" // Used for sending data to server
-#include "Sensor.h" // Used for sensors @todo: magnet to sensor to detect door open/close
 #include "Light.h" // Used for light
-
-#include <cmath> // Used to calculate abnormal data values
-
-Network network;
-Sensor sensor;
+#include "Sensor.h" // Used for sensors @todo: magnet to sensor to detect door open/close
+#include "Network.h" // Used for sending data to server
 // @todo - test OTA library
 //#include "OTA.h"
 
+//Sensor sensor;
+//Network network;
+
 void setup() {
+  //Serial.end();
   Serial.begin(115200);
-  Wire.begin(3, 4);
-  delay(1500);
+  delay(5000);
+  //while (!Serial) delay(10);
+  Serial.println("Starting");
 
-  while (!Serial) delay(10);
+  Serial.println("Starting LED");
+  Light& light = Light::getInstance();
 
-  Light& light = Light::getInstance(); // Initialize light
-  sensor.init(); // Initialize sensors
-  delay(1000);
+  Serial.println("Starting Sensor");
+  Sensor& sensor = Sensor::getInstance();
+
+  //delay(1000);
+
+  Serial.println("Starting Network");
+  Network& network = Network::getInstance();
   
-  network.init(); // Initialize network
   // Initialize NTP client
   // Initialize cookies
   // Initialize OTA
@@ -62,7 +65,7 @@ void loop() {
   //ArduinoOTA.poll();
 
   // add your normal loop code below ...
-  network.timeClient.update();
+  /*network.timeClient.update();
 
   if (network.timeClient.getMinutes() == 0) {
     // Set the ESP32's internal clock every hour
@@ -83,11 +86,11 @@ void loop() {
     sensor.getX(), 
     sensor.getY(), 
     sensor.getZ()
-  );
+  );*/
   
   // @todo determine danger, if true:
   //network.sendToServer(sensor.getX(), sensor.getY(), sensor.getZ());
-
+  Serial.println("Looping");
   delay(1000);
 }
 

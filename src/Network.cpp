@@ -8,7 +8,6 @@ void Network::initWifi() {
         WiFi.begin(credentials.ssid, credentials.pass);
         delay(5000);
 
-        // Yellow light on
         light.setYellow();
     }
         
@@ -38,7 +37,7 @@ bool Network::syncronizeClock() {
         return false;
     }
     gmtime_r(&now, &timeinfo);
-    Serial.printf("\nCurrent time: %s", asctime(&timeinfo));
+    Serial.printf("\nCurrent time: %s", asctime(&timeinfo)); // riktig dato men ikke klokkeslett, tidssone?
     return true;
 }
 
@@ -99,7 +98,6 @@ void Network::connect() {
         timeClient.setTimeOffset(credentials.gmtOffsetSec);
         timeClient.setUpdateInterval(credentials.ntpUpdateInterval);
 
-        // Blue light on
         light.setBlue();
 
         delay(1000);
@@ -108,12 +106,14 @@ void Network::connect() {
 
 void Network::init() {
     // Connect to WiFi
+    //WiFi.disconnect();
     WiFi.begin(credentials.ssid, credentials.pass);
+    Serial.println("Wifi has been initialized");
     WiFi.mode(WIFI_STA);
+    Serial.println("Wifi mode has been set to WIFI_STA ");
 
-    // @todo
-    //secureNetworkClient.setCACert(rootCA);
-    //secureNetworkClientHiveMQ.setCACert(rootCaHiveMQ);
+    //secureNetworkClient.setCACert(cert);
+    //secureNetworkClientHiveMQ.setCACert(certMQ);
     connect();
 }
 

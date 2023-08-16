@@ -26,6 +26,7 @@ void Sensor::initLIS() {
     Serial.print("\nRange = "); 
     Serial.print(2 << lis.getRange());
     Serial.print("G");
+    Serial.print("\n");
   }
 }
 
@@ -43,14 +44,15 @@ void Sensor::initSHT() {
 
     Serial.print("\nHeater Enabled State: ");
     if (sht.isHeaterEnabled())
-      Serial.println("ENABLED");
+      Serial.print("ENABLED");
     else
-      Serial.println("DISABLED");
+      Serial.print("DISABLED");
+      Serial.print("\n");
   }
 }
 
 void Sensor::initLTR() {
-  Serial.print("LTR329 light sensor test: ");
+  Serial.print("\nLTR329 light sensor test: ");
 
   if (!ltr.begin()) { // 0x29 is already default I2C address
     Serial.print("Could not find LTR329, check wiring! ");
@@ -62,13 +64,15 @@ void Sensor::initLTR() {
     Serial.print("LTR329 sensor found!");
 
     Serial.print("\nLight gain: ");
-    Serial.println(ltr.getGain());
-    Serial.print("Light integration time: ");
-    Serial.println(ltr.getIntegrationTime());
+    Serial.print(ltr.getGain());
+    Serial.print("\nLight integration time: ");
+    Serial.print(ltr.getIntegrationTime());
+    Serial.print("\n\n");
   }
 }
 
 void Sensor::init() {
+  Wire.begin(3, 4);
   initLIS();
   initSHT();
   initLTR();
