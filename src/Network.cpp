@@ -14,11 +14,13 @@ void Network::initWifi() {
     Serial.print("\nConnected to Wifi!");
     Serial.print("\nIP address: ");
     Serial.print(WiFi.localIP());
+    Serial.print("\n");
 }
 
 bool Network::syncronizeClock() {
     // Synchronize ESP32's clock with NTP server
     configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+    //configTime(TZ_Europe_Berlin, "pool.ntp.org", "time.nist.gov");
 
     // Wait for time synchronization
     Serial.print("\nWaiting for NTP time sync: ");
@@ -33,21 +35,35 @@ bool Network::syncronizeClock() {
     // @todo exception handling
     struct tm timeinfo;
     if(!getLocalTime(&timeinfo)){
-        Serial.print("\nFailed to obtain time");
+        Serial.print("\nFailed to obtain time\n");
         return false;
     }
     gmtime_r(&now, &timeinfo);
     Serial.printf("\nCurrent time: %s", asctime(&timeinfo)); // riktig dato men ikke klokkeslett, tidssone?
+    Serial.print("\n");
     return true;
 }
 
+void callback(char* topic, byte* payload, unsigned int length) {
+    Serial.print("Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
+    for (int i = 0; i < length; i++) {
+        Serial.print((char)payload[i]);
+    }
+}
+
 void Network::initMQTT() {
+    Serial.print("\nStarting MQTT");
+    clientId += String(random(0xffff), HEX);
+
     while (!mqttClient.connected()) {
         mqttClient.setClient(secureNetworkClientHiveMQ);
         mqttClient.setServer(credentials.mqttServer, credentials.mqttPort);
-        Serial.println("MQTT client buffer size: " + String(mqttClient.getBufferSize()));
+        mqttClient.setCallback(callback);
+        Serial.println("\nMQTT client buffer size: " + String(mqttClient.getBufferSize()));
 
-        if (mqttClient.connect(credentials.sensorId, credentials.mqttUsername, credentials.mqttPassword)) {
+        if (mqttClient.connect(clientId.c_str(), credentials.mqttUsername, credentials.mqttPassword)) {
             Serial.print("\nConnected to MQTT broker, state: ");
             Serial.print(mqttClient.state());
 
@@ -91,6 +107,18 @@ void Network::connect() {
                 delay(3000);
             }
         }
+
+        //certs
+        /*File certFile = LittleFS.open("/data/certs.ar", "r");
+        if (certFile) {
+            rootCert = certFile.readString();
+            certFile.close();
+
+            secureNetworkClientHiveMQ.setCACert(rootCert.c_str());
+        } else {
+            Serial.println("Failed to open certificate file");
+            // Handle the error
+        }*/
         
         initMQTT();
 
@@ -105,15 +133,17 @@ void Network::connect() {
 }
 
 void Network::init() {
-    // Connect to WiFi
-    //WiFi.disconnect();
+    //LittleFS.begin();
+
     WiFi.begin(credentials.ssid, credentials.pass);
-    Serial.println("Wifi has been initialized");
+    Serial.println("\nWifi has been initialized");
+
     WiFi.mode(WIFI_STA);
     Serial.println("Wifi mode has been set to WIFI_STA ");
 
-    //secureNetworkClient.setCACert(cert);
-    //secureNetworkClientHiveMQ.setCACert(certMQ);
+    secureNetworkClient.setCACert(credentials.rootCert);
+    secureNetworkClientHiveMQ.setCACert(credentials.rootCertHiveMQ);
+
     connect();
 }
 

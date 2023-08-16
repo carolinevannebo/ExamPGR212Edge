@@ -6,9 +6,6 @@
 // @todo - test OTA library
 //#include "OTA.h"
 
-//Sensor sensor;
-//Network network;
-
 void setup() {
   //Serial.end();
   Serial.begin(115200);
@@ -26,7 +23,7 @@ void setup() {
 
   Serial.println("Starting Network");
   Network& network = Network::getInstance();
-  
+
   // Initialize NTP client
   // Initialize cookies
   // Initialize OTA

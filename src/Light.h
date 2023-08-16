@@ -12,7 +12,7 @@
 class Light {
   private:
     Adafruit_DotStar strip = Adafruit_DotStar(NUMPIXELS, DATAPIN, CLOCKPIN, DOTSTAR_BRG);
-    Credentials credentials;
+    Credentials& credentials = Credentials::getInstance();
 
     void init();
     void changeColor(int r, int g, int b);

@@ -8,17 +8,16 @@
 #include "Credentials.h"
 
 // Used for validating certificates
-#include <FS.h>
+#include <LittleFS.h>
 #include <NTPClient.h>
-// ... iclude certificate files
 
-//#include <MQTT.h> // Used for MQTT -- tror denne kan fjernes pga linja under
 #include <ArduinoJson.h> // Used for parsing JSON
 #include <PubSubClient.h> // Used for real-time communication MQTT
 #include "Light.h"
 
 class Network {
     private:
+
         WiFiUDP ntpUDP;
         HTTPClient httpClient;
         PubSubClient mqttClient;
@@ -26,13 +25,11 @@ class Network {
         WiFiClientSecure secureNetworkClient, secureNetworkClientHiveMQ;
 
         String payload;
+        String clientId = "ESP32Client-";
         DynamicJsonDocument& doc = *(new DynamicJsonDocument(1024));
 
-        Credentials credentials;
+        Credentials& credentials = Credentials::getInstance();
         Light& light = Light::getInstance();
-
-        //const char* cert = rootCert;
-        //const char* certMQ = rootCertHiveMQ;
 
         void init();
         void initWifi();
@@ -58,7 +55,7 @@ class Network {
             static Network instance;
             return instance;
         }
-        
+
         void connect();
         void loopMQTT();
         void sendToBroker(
@@ -77,8 +74,7 @@ class Network {
             float y, 
             float z
         );
-
-
+        
         NTPClient& timeClient = *(new NTPClient(ntpUDP, credentials.ntpServer, credentials.gmtOffsetSec, credentials.daylightOffsetSec));
 };
 #endif
