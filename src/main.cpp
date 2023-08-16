@@ -19,15 +19,11 @@ void setup() {
   Serial.println("Starting Sensor");
   Sensor& sensor = Sensor::getInstance();
 
-  //delay(1000);
-
   Serial.println("Starting Network");
   Network& network = Network::getInstance();
 
-  // Initialize NTP client
   // Initialize cookies
   // Initialize OTA
-
   /*
   // initialize Serial1 for communication with the WiFi module
   Serial1.begin(115200);
@@ -61,19 +57,13 @@ void loop() {
   // check for WiFi OTA updates
   //ArduinoOTA.poll();
 
+  Serial.println("\n\nLooping");
   // add your normal loop code below ...
-  /*network.timeClient.update();
-
-  if (network.timeClient.getMinutes() == 0) {
-    // Set the ESP32's internal clock every hour
-    struct tm timeinfo;
-    if (!getLocalTime(&timeinfo)) {
-      Serial.println("Failed to obtain time");
-      return;
-    }
-  }
-
+  Network& network = Network::getInstance();
+  network.updateTimeClient();
   network.loopMQTT();
+
+  Sensor& sensor = Sensor::getInstance();
   sensor.read();
   
   network.sendToBroker(
@@ -83,11 +73,10 @@ void loop() {
     sensor.getX(), 
     sensor.getY(), 
     sensor.getZ()
-  );*/
+  );
   
   // @todo determine danger, if true:
   //network.sendToServer(sensor.getX(), sensor.getY(), sensor.getZ());
-  Serial.println("Looping");
   delay(1000);
 }
 

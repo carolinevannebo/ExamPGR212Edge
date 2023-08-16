@@ -81,7 +81,6 @@ void Sensor::init() {
 
 void Sensor::printLIS() {
   /* Display the results (acceleration is measured in m/s^2) */
-    Serial.print("\nNormalized acceleration data: ");
     Serial.print("\nX: "); Serial.print(x);
     Serial.print("  \tY: "); Serial.print(y);
     Serial.print("  \tZ: "); Serial.print(z);
@@ -99,9 +98,10 @@ void Sensor::printSHT() {
 }
 
 void Sensor::printLTR() {
-  Serial.print("\nLight intensity: ");
+  Serial.print("\tLight intensity: ");
   Serial.print(lightIntensity);
   Serial.print(" lux");
+  Serial.print("\n");
 }
 
 void Sensor::readLIS() {
@@ -158,6 +158,7 @@ void Sensor::readLTR() {
 }
 
 void Sensor::read() {
+  Serial.print("\nReading sensors...");
   readLIS();
   readSHT();
   readLTR();

@@ -72,9 +72,6 @@ void Network::initMQTT() {
             Serial.print("\nSubscribing to topic: ");
             Serial.println(credentials.mqttTopic);
 
-            Serial.print("\nSetting up Subscription to the topic: ");
-            Serial.print(credentials.mqttTopic);
-
             try {
                 mqttClient.subscribe(credentials.mqttTopic.c_str(), 0);
                 Serial.println("\nSubscription successful!");
@@ -107,18 +104,6 @@ void Network::connect() {
                 delay(3000);
             }
         }
-
-        //certs
-        /*File certFile = LittleFS.open("/data/certs.ar", "r");
-        if (certFile) {
-            rootCert = certFile.readString();
-            certFile.close();
-
-            secureNetworkClientHiveMQ.setCACert(rootCert.c_str());
-        } else {
-            Serial.println("Failed to open certificate file");
-            // Handle the error
-        }*/
         
         initMQTT();
 
@@ -133,8 +118,6 @@ void Network::connect() {
 }
 
 void Network::init() {
-    //LittleFS.begin();
-
     WiFi.begin(credentials.ssid, credentials.pass);
     Serial.println("\nWifi has been initialized");
 
@@ -201,6 +184,19 @@ void Network::requestURL() {
     httpClient.end();
 }
 
+void Network::updateTimeClient() {
+    timeClient.update();
+
+    if (timeClient.getMinutes() == 0) {
+    // Set the ESP32's internal clock every hour
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {
+      Serial.println("Failed to obtain time");
+      return;
+    }
+  }
+}
+
 void Network::loopMQTT() {
     // Handle reconnection to MQTT broker
     if (!mqttClient.connected()) {
@@ -213,9 +209,9 @@ void Network::loopMQTT() {
 }
 
 void Network::sendToBroker(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
-    const char* topicTemp = String(credentials.mqttTopic + "Temperature").c_str();
-    const char* topicHum = String(credentials.mqttTopic + "Humidity").c_str();
-    const char* topicLight = String(credentials.mqttTopic + "LightIntensity").c_str();
+    String topicTemp = credentials.mqttTopic + "Temperature";
+    String topicHum = credentials.mqttTopic + "Humidity";
+    String topicLight = credentials.mqttTopic + "LightIntensity";
 
     String topicX = credentials.mqttTopic + "X";
     String topicY = credentials.mqttTopic + "Y";
@@ -239,28 +235,28 @@ void Network::sendToBroker(float temperature, float humidity, float lightIntensi
             
             try {
                 Serial.print("\nPublishing temperature: ");
-                bool publishTemp = mqttClient.publish(topicTemp, tempPayload, tempPayloadLength);
-                Serial.println(publishTemp ? "successful!" : "failed!");
+                bool publishTemp = mqttClient.publish(topicTemp.c_str(), tempPayload, tempPayloadLength);
+                Serial.print(publishTemp ? "successful!" : "failed!");
 
                 Serial.print("\nPublishing humidity: ");
-                bool publishHum = mqttClient.publish(topicHum, humPayload, humPayloadLength);
-                Serial.println(publishHum ? "successful!" : "failed!");
+                bool publishHum = mqttClient.publish(topicHum.c_str(), humPayload, humPayloadLength);
+                Serial.print(publishHum ? "successful!" : "failed!");
 
                 Serial.print("\nPublishing light intensity: ");
-                bool publishLight = mqttClient.publish(topicLight, lightPayload, lightPayloadLength);
-                Serial.println(publishLight ? "successful!" : "failed!");
+                bool publishLight = mqttClient.publish(topicLight.c_str(), lightPayload, lightPayloadLength);
+                Serial.print(publishLight ? "successful!" : "failed!");
 
                 Serial.print("\nPublishing X: ");
                 bool publishX = mqttClient.publish(topicX.c_str(), String(x).c_str());
-                Serial.println(publishX ? "successful!" : "failed!");
+                Serial.print(publishX ? "successful!" : "failed!");
 
                 Serial.print("\nPublishing Y: ");
                 bool publishY = mqttClient.publish(topicY.c_str(), String(y).c_str());
-                Serial.println(publishY ? "successful!" : "failed!");
+                Serial.print(publishY ? "successful!" : "failed!");
 
                 Serial.print("\nPublishing Z: ");
                 bool publishZ = mqttClient.publish(topicZ.c_str(), String(z).c_str());
-                Serial.println(publishZ ? "successful!" : "failed!");
+                Serial.print(publishZ ? "successful!" : "failed!");
 
                 Serial.println("\nPublishing successful!");
                 light.setGreen();

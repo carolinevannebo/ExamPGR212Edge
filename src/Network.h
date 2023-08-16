@@ -8,7 +8,6 @@
 #include "Credentials.h"
 
 // Used for validating certificates
-#include <LittleFS.h>
 #include <NTPClient.h>
 
 #include <ArduinoJson.h> // Used for parsing JSON
@@ -57,6 +56,7 @@ class Network {
         }
 
         void connect();
+        void updateTimeClient();
         void loopMQTT();
         void sendToBroker(
             float temperature, 

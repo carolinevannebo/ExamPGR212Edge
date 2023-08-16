@@ -14,7 +14,7 @@ class Credentials {
             static Credentials instance;
             return instance;
         }
-
+        
         // WiFi credentials
         const char* ssid = "Freeloadere"; // Your network SSID (name)
         const char* pass = "ZFQS7YPDYQQYV7"; // Your network password
