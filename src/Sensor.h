@@ -11,9 +11,15 @@
 
 #include "Light.h"
 
+#define HALL_SENSOR_PIN 1
+
 class Sensor {
     private:
         // Sensor instances
+        Adafruit_SHT31 sht = Adafruit_SHT31();
+        Adafruit_LTR329 ltr = Adafruit_LTR329();
+        float temperature, humidity, lightIntensity;
+
         Adafruit_LIS3DH lis = Adafruit_LIS3DH();
         float x, y, z;
 
@@ -21,9 +27,8 @@ class Sensor {
         // z: up/down
         // y: forward/backward
 
-        Adafruit_SHT31 sht = Adafruit_SHT31();
-        Adafruit_LTR329 ltr = Adafruit_LTR329();
-        float temperature, humidity, lightIntensity;
+        int hallSensorValue;
+        bool isDoorOpen;
 
         Light& light = Light::getInstance();
 
@@ -59,6 +64,8 @@ class Sensor {
         float getTemperature();
         float getHumidity();
         float getLightIntensity();
+
+        bool getIsDoorOpen();
 
 };
 #endif

@@ -64,7 +64,8 @@ class Network {
             float lightIntensity, 
             float x, 
             float y, 
-            float z
+            float z,
+            bool isDoorOpen
         );
         void sendToServer(
             float temperature, 

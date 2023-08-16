@@ -8,6 +8,8 @@ float Sensor::getTemperature() { return temperature; }
 float Sensor::getHumidity() { return humidity; }
 float Sensor::getLightIntensity() { return lightIntensity; }
 
+bool Sensor::getIsDoorOpen() { return isDoorOpen; }
+
 void Sensor::initLIS() {
   Serial.print("\nLIS3DH accelometer test: ");
 
@@ -73,6 +75,9 @@ void Sensor::initLTR() {
 
 void Sensor::init() {
   Wire.begin(3, 4);
+
+  pinMode(HALL_SENSOR_PIN, INPUT);
+
   initLIS();
   initSHT();
   initLTR();
@@ -159,7 +164,22 @@ void Sensor::readLTR() {
 
 void Sensor::read() {
   Serial.print("\nReading sensors...");
+
+  hallSensorValue = digitalRead(HALL_SENSOR_PIN);
+  if (hallSensorValue == HIGH) {
+    Serial.print("\nHall sensor triggered!");
+    isDoorOpen = true;
+    light.setRed();
+  } else {
+    isDoorOpen = false;
+    light.setGreen();
+  }
+
+  delay(1000);
+
   readLIS();
   readSHT();
   readLTR();
+
+  delay(1000);
 }

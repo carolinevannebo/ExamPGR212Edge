@@ -208,7 +208,7 @@ void Network::loopMQTT() {
     delay(10);
 }
 
-void Network::sendToBroker(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
+void Network::sendToBroker(float temperature, float humidity, float lightIntensity, float x, float y, float z, bool isDoorOpen) {
     String topicTemp = credentials.mqttTopic + "Temperature";
     String topicHum = credentials.mqttTopic + "Humidity";
     String topicLight = credentials.mqttTopic + "LightIntensity";
@@ -216,6 +216,8 @@ void Network::sendToBroker(float temperature, float humidity, float lightIntensi
     String topicX = credentials.mqttTopic + "X";
     String topicY = credentials.mqttTopic + "Y";
     String topicZ = credentials.mqttTopic + "Z";
+
+    String topicDoor = credentials.mqttTopic + "Door";
 
     if (WiFi.status() == WL_CONNECTED) {
         if (mqttClient.connected()) {
@@ -257,6 +259,10 @@ void Network::sendToBroker(float temperature, float humidity, float lightIntensi
                 Serial.print("\nPublishing Z: ");
                 bool publishZ = mqttClient.publish(topicZ.c_str(), String(z).c_str());
                 Serial.print(publishZ ? "successful!" : "failed!");
+
+                Serial.print("\nPublishing door: ");
+                bool publishDoor = isDoorOpen ? mqttClient.publish(topicDoor.c_str(), "Open") : mqttClient.publish(topicDoor.c_str(), "Closed");
+                Serial.print(publishDoor ? "successful!" : "failed!");
 
                 Serial.println("\nPublishing successful!");
                 light.setGreen();

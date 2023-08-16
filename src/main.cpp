@@ -72,7 +72,8 @@ void loop() {
     sensor.getLightIntensity(), 
     sensor.getX(), 
     sensor.getY(), 
-    sensor.getZ()
+    sensor.getZ(),
+    sensor.getIsDoorOpen()
   );
   
   // @todo determine danger, if true:
