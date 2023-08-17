@@ -27,9 +27,8 @@ class Credentials {
         const int mqttPort= 8883;
 
         // Internet address to send POST to
-        const char* hostDomain = "http://192.168.68.111"; // Render endpoint for SSL
-        //const int hostPort = 443;
-        const int hostPort = 3001;
+        const char* hostDomain = "https://pig-binge-monitoring-server.onrender.com"; // Render endpoint for SSL
+        const int hostPort = 443;
 
         const char* hostDomainLocal = "192.168.68.111"; // IP address for TCP
         const int hostPortLocal = 3001;
