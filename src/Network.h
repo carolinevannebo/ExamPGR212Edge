@@ -13,10 +13,10 @@
 #include <ArduinoJson.h> // Used for parsing JSON
 #include <PubSubClient.h> // Used for real-time communication MQTT
 #include "Light.h"
+#include "Sensor.h"
 
 class Network {
     private:
-
         WiFiUDP ntpUDP;
         HTTPClient httpClient;
         PubSubClient mqttClient;
@@ -28,12 +28,14 @@ class Network {
         DynamicJsonDocument& doc = *(new DynamicJsonDocument(1024));
 
         Credentials& credentials = Credentials::getInstance();
+        Sensor& sensor = Sensor::getInstance();
         Light& light = Light::getInstance();
 
         void init();
         void initWifi();
         void initMQTT();
         void requestURL();
+        void requestURLBackup();
         bool syncronizeClock(); // Hvis denne returnerer false, må vi kanskje prøve å koble til wifi på nytt pga sertifikat
         void initJson(
             String id, 
@@ -42,7 +44,8 @@ class Network {
             float lightIntensity, 
             float x, 
             float y, 
-            float z
+            float z,
+            bool isDoorOpen
         );
 
         Network() {
@@ -57,6 +60,7 @@ class Network {
 
         void connect();
         void updateTimeClient();
+        void serverInterval();
         void loopMQTT();
         void sendToBroker(
             float temperature, 
@@ -73,7 +77,8 @@ class Network {
             float lightIntensity, 
             float x, 
             float y, 
-            float z
+            float z,
+            bool isDoorOpen
         );
         
         NTPClient& timeClient = *(new NTPClient(ntpUDP, credentials.ntpServer, credentials.gmtOffsetSec, credentials.daylightOffsetSec));

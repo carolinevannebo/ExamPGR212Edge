@@ -27,8 +27,12 @@ class Credentials {
         const int mqttPort= 8883;
 
         // Internet address to send POST to
-        const char* hostDomain = ""; // Render endpoint for API
-        const int hostPort = 443;
+        const char* hostDomain = "http://192.168.68.111"; // Render endpoint for SSL
+        //const int hostPort = 443;
+        const int hostPort = 3001;
+
+        const char* hostDomainLocal = "192.168.68.111"; // IP address for TCP
+        const int hostPortLocal = 3001;
 
         // NTP
         const char* ntpServer= "pool.ntp.org";
@@ -40,7 +44,7 @@ class Credentials {
         const int httpTimeout = 10000; // 10 seconds in milliseconds
         const int ledBrightness = 60; // 0-255
 
-        unsigned long requestInterval = 300000; // 5 minutes in milliseconds
+        unsigned long requestInterval = 60000; //temp 1min  //300000; // 5 minutes in milliseconds
         unsigned long lastRequestSent = 0;
         
         const char* rootCert = 

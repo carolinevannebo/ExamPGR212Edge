@@ -77,7 +77,7 @@ void loop() {
   );
   
   // @todo determine danger, if true:
-  //network.sendToServer(sensor.getX(), sensor.getY(), sensor.getZ());
+  network.serverInterval();
   delay(1000);
 }
 

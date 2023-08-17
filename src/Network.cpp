@@ -133,25 +133,72 @@ void Network::init() {
 void Network::initJson(
         String id, 
         float temperature, float humidity, float lightIntensity, 
-        float x, float y, float z) {
+        float x, float y, float z,
+        bool isDoorOpen) {
 
     payload = "";
     doc.clear();
 
-    doc["SensorId"] = id;
-    doc["Temperature"] = temperature;
-    doc["Humidity"] = humidity;
-    doc["LightIntensity"] = lightIntensity;
-    doc["X"] = x;
-    doc["Y"] = y;
-    doc["Z"] = z;
+    doc["sensorId"] = id;
+    doc["temperature"] = temperature;
+    doc["humidity"] = humidity;
+    doc["light"] = lightIntensity;
+    doc["x"] = x;
+    doc["y"] = y;
+    doc["z"] = z;
+    doc["door"] = isDoorOpen ? "Open" : "Closed";
 
     serializeJson(doc, payload);
 
     Serial.println("\nJSON payload: " + payload);
 }
 
-void Network::requestURL() {
+void Network::requestURLBackup() { // TCP
+    Serial.println("\nRequesting URL with TCP...");
+    Serial.println("\nSending request to: " + String(credentials.hostDomainLocal));
+
+    if (!networkClient.connect(credentials.hostDomainLocal, credentials.hostPortLocal)) {
+        Serial.println("\nFailed to connect to: " + String(credentials.hostDomainLocal));
+        return;
+    }
+
+    String postRequest = String("POST ") + "/" + " HTTP/1.1\r\n" +
+                "Host: " + String(credentials.hostDomainLocal) + "\r\n" +
+                "Content-Type: application/json\r\n" +
+                "Content-Length: " + String(payload.length()) + "\r\n" +
+                "Connection: close\r\n\r\n" +
+                payload;
+
+    networkClient.print(postRequest);
+
+    // Wait for the server to respond
+    while (!networkClient.available()) {
+        delay(10);
+    }
+
+    unsigned long timeout = millis();
+    while (networkClient.available() == 0) {
+        if (millis() - timeout > 5000) {
+            Serial.println(">>> Client Timeout !");
+            networkClient.stop();
+            return;
+        }
+    }
+
+    String response = "";
+    while (networkClient.available()) {
+        response += networkClient.readString();
+        Serial.print("\n Request sent: ");
+        Serial.print(postRequest);
+        Serial.print("\n\n Response from server: ");
+        Serial.print(response);
+    }
+
+    networkClient.stop();
+}
+
+void Network::requestURL() { // SSL
+    Serial.println("\nRequesting URL with SSL...");
     Serial.println("\nSending request to: " + String(credentials.hostDomain));
 
     httpClient.setTimeout(credentials.httpTimeout);
@@ -175,13 +222,16 @@ void Network::requestURL() {
         Serial.println(response);
 
         light.setGreen();
+        httpClient.end();
+
     } else {
         Serial.println("\nError on sending POST request, error code: ");
-        Serial.println(httpResponseCode);
-    }
+        Serial.print(httpResponseCode);
+        httpClient.end();
 
-    Serial.println("Closing connection");
-    httpClient.end();
+        Serial.println("\nHandling error...");
+        requestURLBackup();
+    }
 }
 
 void Network::updateTimeClient() {
@@ -281,14 +331,31 @@ void Network::sendToBroker(float temperature, float humidity, float lightIntensi
     }
 }
 
-void Network::sendToServer(float temperature, float humidity, float lightIntensity, float x, float y, float z) {
+void Network::sendToServer(float temperature, float humidity, float lightIntensity, float x, float y, float z, bool isDoorOpen) {
     if (WiFi.status() == WL_CONNECTED) {
         Serial.println("\nSending data to server...");
-        initJson(credentials.sensorId, temperature, humidity, lightIntensity, x, y, z);
+        initJson(credentials.sensorId, temperature, humidity, lightIntensity, x, y, z, isDoorOpen);
         requestURL();
         
     } else {
         Serial.println("\nWiFi not connected, trying to reconnect...");
         connect();
+    }
+}
+
+void Network::serverInterval() {
+    unsigned long currentTime = millis();
+    if (currentTime - credentials.lastRequestSent > credentials.requestInterval) {
+        Serial.println("Sending request to server");
+        sendToServer(
+            sensor.getTemperature(), 
+            sensor.getHumidity(), 
+            sensor.getLightIntensity(), 
+            sensor.getX(), 
+            sensor.getY(), 
+            sensor.getZ(),
+            sensor.getIsDoorOpen()
+        );
+        credentials.lastRequestSent = currentTime;
     }
 }
