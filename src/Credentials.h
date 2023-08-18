@@ -2,8 +2,6 @@
 #ifndef CREDENTIALS_H
 #define CREDENTIALS_H
 #include <Arduino.h>
-//#include "certs/certificate.h"
-//#include "certs/certificateHiveMQ.h"
 
 class Credentials {
     private:
@@ -39,11 +37,11 @@ class Credentials {
         const int daylightOffsetSec = 0;
         const int ntpUpdateInterval = 60000; // 1 minute in milliseconds
 
-        const char * sensorId = "ESP32-NORTH"; // Change to implement additional sensors
+        const char * sensorId = "ESP32-WEST"; // Change to implement additional sensors
         const int httpTimeout = 10000; // 10 seconds in milliseconds
         const int ledBrightness = 60; // 0-255
 
-        unsigned long requestInterval = 60000; //temp 1min  //300000; // 5 minutes in milliseconds
+        unsigned long requestInterval = 300000; // 5 minutes in milliseconds
         unsigned long lastRequestSent = 0;
         
         const char* rootCert = 
