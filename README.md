@@ -20,7 +20,7 @@ submissions and lectures to get ideas for good additions.
 
 ## Solution
 This project covers the edge service of the solution. The program is written in C++ using the PlatformIO IDE with Arduino framework. The microcontroller uses different sensors to read the environment of the stys, such as temperature, humidity and light. It also uses a hall sensor with a magnet to detect if the door opens, and accelerometer to know that the sensor is standing still and has not fallen out of place. This solution connects to your local network and sends the data in real time to a MQTT broker. It also connects to an API, with support for both SSL and TCP, which means it can use the backend server deployed on the cloud or a local running instance. The program is easily expandable and allows for multiple sensors, only by changing the sensor id which is found in the Credentials header file.
-- Backend https://github.com/carolinevannebo/ExamPGR212Backend/blob/master/README.md
+- Backend https://github.com/carolinevannebo/ExamPGR212Backend
 - Frontend https://github.com/carolinevannebo/ExamPGR212Frontend
 
 ### Components
