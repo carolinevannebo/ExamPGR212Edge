@@ -14,8 +14,8 @@ class Credentials {
         }
         
         // WiFi credentials
-        const char* ssid = "Freeloadere"; // Your network SSID (name)
-        const char* pass = "ZFQS7YPDYQQYV7"; // Your network password
+        const char* ssid = ""; // Your network SSID (name)
+        const char* pass = ""; // Your network password
 
         // Used for MQTT connection
         String mqttTopic= "pig-binge-monitoring/";
